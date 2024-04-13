@@ -1,7 +1,22 @@
 import { unstable_cache } from "next/cache";
-import prisma from "@/lib/prisma";
-import { serialize } from "next-mdx-remote/serialize";
-import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
+
+const currentTime = Date.now();
+
+let data = {
+  domain: "subdomain",
+  name: "jeff",
+  title: "jeff",
+  status: "Making Money",
+  lastSeen: currentTime,
+  profileIMG: "/profile.png",
+  description:
+    "Jeff is an affable, thoughtful man in his mid-thirties, known for his keen sense of humor and his genuine interest in the wellbeing of others. By day, he works as a software developer, tackling complex problems with a calm demeanor and a relentless focus. Outside of work, Jeff is an avid hiker and nature photographer, often found exploring remote trails with his camera in tow. His weekends are typically spent either in the serenity of the great outdoors or in the cozy confines of his home, experimenting with new recipes in the kitchen. This blend of intellectual curiosity and a love for the simple pleasures makes Jeff a well-rounded individual who cherishes both solitude and the company of close friends.",
+};
+
+// name
+// Picture
+// backround Gradient
+// Chat box (Deep link to discord)
 
 export async function getSiteData(domain: string) {
   const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
@@ -10,124 +25,14 @@ export async function getSiteData(domain: string) {
 
   return await unstable_cache(
     async () => {
-      return prisma.site.findUnique({
-        where: subdomain ? { subdomain } : { customDomain: domain },
-        include: { user: true },
-      });
+      data.subdomanin = subdomain;
+      data.name = subdomain;
+      return data;
     },
     [`${domain}-metadata`],
     {
       revalidate: 900,
       tags: [`${domain}-metadata`],
-    },
+    }
   )();
-}
-
-export async function getPostsForSite(domain: string) {
-  const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
-    ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
-    : null;
-
-  return await unstable_cache(
-    async () => {
-      return prisma.post.findMany({
-        where: {
-          site: subdomain ? { subdomain } : { customDomain: domain },
-          published: true,
-        },
-        select: {
-          title: true,
-          description: true,
-          slug: true,
-          image: true,
-          imageBlurhash: true,
-          createdAt: true,
-        },
-        orderBy: [
-          {
-            createdAt: "desc",
-          },
-        ],
-      });
-    },
-    [`${domain}-posts`],
-    {
-      revalidate: 900,
-      tags: [`${domain}-posts`],
-    },
-  )();
-}
-
-export async function getPostData(domain: string, slug: string) {
-  const subdomain = domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
-    ? domain.replace(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
-    : null;
-
-  return await unstable_cache(
-    async () => {
-      const data = await prisma.post.findFirst({
-        where: {
-          site: subdomain ? { subdomain } : { customDomain: domain },
-          slug,
-          published: true,
-        },
-        include: {
-          site: {
-            include: {
-              user: true,
-            },
-          },
-        },
-      });
-
-      if (!data) return null;
-
-      const [mdxSource, adjacentPosts] = await Promise.all([
-        getMdxSource(data.content!),
-        prisma.post.findMany({
-          where: {
-            site: subdomain ? { subdomain } : { customDomain: domain },
-            published: true,
-            NOT: {
-              id: data.id,
-            },
-          },
-          select: {
-            slug: true,
-            title: true,
-            createdAt: true,
-            description: true,
-            image: true,
-            imageBlurhash: true,
-          },
-        }),
-      ]);
-
-      return {
-        ...data,
-        mdxSource,
-        adjacentPosts,
-      };
-    },
-    [`${domain}-${slug}`],
-    {
-      revalidate: 900, // 15 minutes
-      tags: [`${domain}-${slug}`],
-    },
-  )();
-}
-
-async function getMdxSource(postContents: string) {
-  // transforms links like <link> to [link](link) as MDX doesn't support <link> syntax
-  // https://mdxjs.com/docs/what-is-mdx/#markdown
-  const content =
-    postContents?.replaceAll(/<(https?:\/\/\S+)>/g, "[$1]($1)") ?? "";
-  // Serialize the content string into MDX
-  const mdxSource = await serialize(content, {
-    mdxOptions: {
-      remarkPlugins: [replaceTweets, () => replaceExamples(prisma)],
-    },
-  });
-
-  return mdxSource;
 }
