@@ -4,7 +4,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className=" max-w-screen-lg mx-auto m-5 p-10 border-2 border-dotted">
+    <div className=" bg-gradient-to-r from-indigo-400 to-cyan-400 max-w-screen-lg my-5 mx-auto p-10 border-2 border-dashed ">
       {children}
     </div>
   );

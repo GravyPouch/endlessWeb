@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
 
+import { CallOpenAI } from "./generatePage";
+
 const currentTime = Date.now();
 
 let data = {
@@ -25,6 +27,8 @@ export async function getSiteData(domain: string) {
 
   return await unstable_cache(
     async () => {
+      console.log(subdomain);
+      data.description = await CallOpenAI(subdomain);
       data.subdomanin = subdomain;
       data.name = subdomain;
       return data;

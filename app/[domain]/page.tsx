@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getSiteData } from "@/lib/fetchers";
 import Image from "next/image";
 import { Tweet } from "@/components/tweets";
+import { Suspense } from "react";
 
 export async function generateMetadata({
   params,
@@ -58,49 +59,51 @@ export default async function SitePostPage({
   }
 
   return (
-    <div className=" flex flex-col col-auto gap-5">
-      <div className=" flex flex-row items-center gap-4 justify-between">
-        <div>
-          <h1 className=" text-6xl">{data.name}</h1>
-          <br />
-          <h1>Status Update: {data.status}</h1>
-          <h1>Last Seen: {dateObj.toLocaleString()}</h1>
-        </div>
+    <Suspense fallback={<p>Loading...</p>}>
+      <div className=" flex flex-col col-auto gap-5">
+        <div className=" flex flex-row items-center gap-4 justify-between">
+          <div>
+            <h1 className=" text-6xl">{data.name}</h1>
+            <br />
+            <h1>Status Update: {data.status}</h1>
+            <h1>Last Seen: {dateObj.toLocaleString()}</h1>
+          </div>
 
-        <Image
-          alt="profile image"
-          src={data.profileIMG}
-          width={200}
-          height={200}
-          className=" rounded-full"
+          <Image
+            alt="profile image"
+            src={data.profileIMG}
+            width={200}
+            height={200}
+            className=" rounded-full border-2 border-dotted"
+          />
+        </div>
+        <div>
+          <p>{data.description}</p>
+        </div>
+        <button className=" border-2 p-3">Talk to me</button>
+        <h1 className=" text-2xl"> Updates:</h1>
+        <Tweet
+          title={"hellow world"}
+          time={data.lastSeen}
+          content={
+            "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
+          }
+        />
+        <Tweet
+          title={"hellow world"}
+          time={data.lastSeen}
+          content={
+            "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
+          }
+        />
+        <Tweet
+          title={"hellow world"}
+          time={data.lastSeen}
+          content={
+            "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
+          }
         />
       </div>
-      <div>
-        <p>{data.description}</p>
-      </div>
-      <button className=" border-2 p-3">Talk to me</button>
-      <h1 className=" text-2xl"> Updates:</h1>
-      <Tweet
-        title={"hellow world"}
-        time={data.lastSeen}
-        content={
-          "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
-        }
-      />
-      <Tweet
-        title={"hellow world"}
-        time={data.lastSeen}
-        content={
-          "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
-        }
-      />
-      <Tweet
-        title={"hellow world"}
-        time={data.lastSeen}
-        content={
-          "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
-        }
-      />
-    </div>
+    </Suspense>
   );
 }
