@@ -4,6 +4,10 @@ import { CallOpenAI } from "./generatePage";
 
 const currentTime = Date.now();
 
+const postNum = Math.floor(Math.random() * 10);
+
+let posts = [];
+
 let data = {
   domain: "subdomain",
   name: "jeff",
@@ -28,9 +32,18 @@ export async function getSiteData(domain: string) {
   return await unstable_cache(
     async () => {
       console.log(subdomain);
-      data.description = await CallOpenAI(subdomain);
+
+      data.description = await CallOpenAI(
+        `Generate a twitter bio that a person ${subdomain} wrote`
+      );
+
+      while (posts.length < 10) {
+        posts.push(await CallOpenAI(`create a tweet written by ${subdomain}`));
+      }
+      data.posts = posts;
       data.subdomanin = subdomain;
       data.name = subdomain;
+      data.title = subdomain;
       return data;
     },
     [`${domain}-metadata`],

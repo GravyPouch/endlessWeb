@@ -82,27 +82,16 @@ export default async function SitePostPage({
         </div>
         <button className=" border-2 p-3">Talk to me</button>
         <h1 className=" text-2xl"> Updates:</h1>
-        <Tweet
-          title={"hellow world"}
-          time={data.lastSeen}
-          content={
-            "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
-          }
-        />
-        <Tweet
-          title={"hellow world"}
-          time={data.lastSeen}
-          content={
-            "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
-          }
-        />
-        <Tweet
-          title={"hellow world"}
-          time={data.lastSeen}
-          content={
-            "Hey Jeff, check out this amazing deal on flight tickets to Paris! #travel #discount #paris #jeff"
-          }
-        />
+        <div className=" flex flex-col gap-4">
+          {data.posts.map((item, index) => (
+            <Tweet
+              key={index}
+              title={"hellow world"}
+              time={data.lastSeen}
+              content={item}
+            />
+          ))}
+        </div>
       </div>
     </Suspense>
   );
